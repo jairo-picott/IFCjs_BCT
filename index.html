@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="icon" type="image/png" src="images/logo.png" />
+    <title>BIM VIEWER</title>
+  </head>
+  <body>
+    <input type="file" id="file-input" hidden/>
+    <label for="file-input" class="button file-input"><ion-icon name="cloud-upload-outline"></ion-icon><span class="title">Load file</span></label>
+    <input type="checkbox" class="" id="properties"/>
+    <label for="properties" class="button properties"><ion-icon name="reader-outline"></ion-icon><span class="title">Properties</span></label>
+    <input type="checkbox" class="" id="dimensions"/>
+    <label for="dimensions" class="button dimensions"><ion-icon name="barcode-outline"></ion-icon><span class="title">Dimensions</span></label>
+    <input type="checkbox" class="" id="models"/>
+    <label for="models" class="button models"><ion-icon name="cube-outline"></ion-icon><span class="title">Models</span></label>
+    <input type="checkbox" class="" id="test-button"/>
+    <label for="test-button" class="button test-button"><ion-icon name="warning-outline"></ion-icon><span class="title">Test</span></label>
+    <div class="slide-menu" id="my-explorer">
+      <h1>Properties</h1>
+    </div>
+    <div class="slide-menu" id="my-models-explorer">
+      <h1>Models</h1>
+    </div>
+    <div id="viewer-container">
+      <p>powered by IFC.js</p><img src="./images/ifcjs_logo.png" alt="IFC.js Logo"/>
+    </div>
+    <div class="progress-box" id="text-container">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <!---------------------Page Start---------------------->
+    <canvas id="three-canvas"></canvas>
+    <script src="bundle.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  </body>
+</html>

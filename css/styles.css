@@ -1,0 +1,274 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html,
+  body {
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  #viewer-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  #viewer-container p{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    text-transform: uppercase;
+    color: #777;
+    font-size: 0.5rem;
+    font-style: italic;
+    padding-right: 16px;
+  }
+
+  #viewer-container img{
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    width: 15px;
+  }
+  
+  #three-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+  }
+
+  /*-----LOAD BUTTON*/
+
+  .button {
+    position: relative;
+    list-style: none;
+    width: 60px;
+    height: 60px;
+    background: white;
+    border-radius: 60px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display:inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+    z-index: 1000000;
+  }
+
+  .button:hover {
+    width: 180px;
+  }
+
+  .button::before{
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 60px;
+    background: linear-gradient(#7164e6, #f0f0f3);
+    opacity: 0;
+    transform: 0.5s;
+  }
+
+  .button:hover::before{
+    opacity: 1;
+  }
+
+  .button::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    width: 100%;
+    height: 100%;
+    border-radius: linear-gradient(#7164e6, #f0f0f3);
+    transition: 0.5s;
+    filter: blur(15px);
+    z-index: -1;
+    opacity: 0;
+  }
+
+  .button:hover::after{
+    opacity: 0.5;
+  }
+
+  .button ion-icon {
+    position: absolute;
+    color: #777;
+    font-size: 1.75em;
+    transition: 0.5s;
+    transition-delay: 0.25s;
+  }
+
+  .button:hover ion-icon {
+    transform: scale(0);
+    color: #fff;
+    transition-delay: 0s;
+  }
+
+  .button span{
+    position: absolute;
+  }
+
+  .button .title{
+    color: #fff;
+    font-size: 1.25em;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transform: scale(0);
+    transition: 0.5s;
+    transition-delay: 0s;
+  }
+
+  .button:hover .title{
+    transform: scale(1);
+    transition-delay: 0.25s;
+}
+
+  .button .text {
+    text-transform: uppercase;
+    color: white;
+    transition: 0.5s;
+  }
+
+  .button:hover .text {
+    font-size: 1.8rem;
+  }
+
+  .button-active {
+    width: 120px;
+    background: linear-gradient(#7164e6, #f0f0f3);
+  }
+
+  
+  /*-------PROPERTY MENU*/
+  .ifc-property-menu {
+    border: 1px solid gray;
+    width: 20rem;
+    position: absolute;
+    background-color: white;
+  }
+
+  .ifc-property-item {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      padding: 0.5rem;
+      border-bottom: solid 1px gray;
+  }
+
+  .ifc-property-value {
+      width: 100%;
+      text-align: right;
+  }
+
+  #properties {
+    display: none;
+  }
+
+  #properties:hover {
+    cursor: pointer;
+  }
+
+  #test-button {
+    display: none;
+  }
+
+  #test-button:hover {
+    cursor: pointer;
+  }
+
+  #models {
+    display: none;
+  }
+
+  #models {
+    cursor: pointer;
+  }
+
+  /*-----------DIMENSIONS*/
+  #dimensions {
+    display: none;
+
+  }
+
+  #dimensions:hover {
+    cursor: pointer;
+  }
+
+  /*-----------MY EXPLORER*/
+  .slide-menu {
+    background: transparent;
+    position: fixed;
+    top: 100px;
+    bottom: 100px;
+    left: -380px;
+    z-index: 100000000;
+    width: auto;
+    overflow-y:auto;
+    transition: all 300ms ease-in-out;
+    margin-top: 0;
+    padding-left: 15px;
+  }
+
+  .slide-menu h1 {
+    padding: 15px;
+    text-transform: uppercase;
+    color: #777;
+  }
+
+  #properties:checked ~ #my-explorer {
+    left: 0;
+  }
+
+  #properties:checked + #my-explorer {
+    left: 400px;
+  }
+
+  #models:checked ~ #my-models-explorer {
+    left:0;
+  }
+
+  #models:checked + #my-models-explorer {
+    left: 400px;
+  }
+
+  /*----------LOADING BAR*/
+  #text-container {
+    height: 5px;
+    background-color: transparent;
+    position: relative;
+    border-radius: 15px;
+  }
+
+  #text-container .progress-bar {
+    position: absolute;
+    height: 100%;
+    background-color: #80e78e;
+    /*animation: progress-animation 5s forwards;*/
+    border-radius: 15px;
+  }
+
+  .ifcjs-dimension-preview {
+    width: 1rem;
+    height: 1rem;
+    background-color: #FFA50F;
+    border-radius: 1rem;
+    opacity: 0.5;
+}
+
+.ifcjs-dimension-label {
+    background-color: black;
+    color: white;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+
+
+  
