@@ -238,6 +238,8 @@
     left: 400px;
   }
 
+  
+
   /*----------LOADING BAR*/
   #text-container {
     height: 5px;
@@ -267,6 +269,13 @@
     color: white;
     padding: 4px;
     border-radius: 4px;
+}
+
+/*-----MAP*/
+
+.user {
+  position: absolute;
+  right: 0;
 }
 
 

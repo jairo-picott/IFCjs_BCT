@@ -5,35 +5,63 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/styles.css" />
-    <link rel="icon" type="image/png" src="images/logo.png" />
-    <title>BIM VIEWER</title>
+    <link rel="stylesheet" href="css/login_style.css" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./images/favicon-16x16.png">
+    <link rel="manifest" href="./images/site.webmanifest">
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.8.2/mapbox-gl.css' rel='stylesheet' />
+    <title>Collab Tool</title>
   </head>
   <body>
-    <input type="file" id="file-input" hidden/>
-    <label for="file-input" class="button file-input"><ion-icon name="cloud-upload-outline"></ion-icon><span class="title">Load file</span></label>
-    <input type="checkbox" class="" id="properties"/>
-    <label for="properties" class="button properties"><ion-icon name="reader-outline"></ion-icon><span class="title">Properties</span></label>
-    <input type="checkbox" class="" id="dimensions"/>
-    <label for="dimensions" class="button dimensions"><ion-icon name="barcode-outline"></ion-icon><span class="title">Dimensions</span></label>
-    <input type="checkbox" class="" id="models"/>
-    <label for="models" class="button models"><ion-icon name="cube-outline"></ion-icon><span class="title">Models</span></label>
-    <input type="checkbox" class="" id="test-button"/>
-    <label for="test-button" class="button test-button"><ion-icon name="warning-outline"></ion-icon><span class="title">Test</span></label>
-    <div class="slide-menu" id="my-explorer">
-      <h1>Properties</h1>
+    <div class="site-container" id="site-container" hidden>
+      <input type="file" id="file-input" hidden/>
+      <label for="file-input" class="button file-input"><ion-icon name="cloud-upload-outline"></ion-icon><span class="title">Load file</span></label>
+      <input type="checkbox" class="" id="properties"/>
+      <label for="properties" class="button properties"><ion-icon name="reader-outline"></ion-icon><span class="title">Properties</span></label>
+      <input type="checkbox" class="" id="dimensions"/>
+      <label for="dimensions" class="button dimensions"><ion-icon name="barcode-outline"></ion-icon><span class="title">Dimensions</span></label>
+      <input type="checkbox" class="" id="models"/>
+      <label for="models" class="button models"><ion-icon name="cube-outline"></ion-icon><span class="title">Models</span></label>
+      <input type="checkbox" class="" id="user"/ hidden>
+      <label for="user" class="button user"><ion-icon name="person-outline"></ion-icon><span class="title" id="username-title"></span></label>
+      <input type="checkbox" class="" id="test-button"/>
+      <label for="test-button" class="button test-button"><ion-icon name="warning-outline"></ion-icon><span class="title">Test</span></label>
+      <div class="slide-menu" id="my-explorer">
+        <h1>Properties</h1>
+      </div>
+      <div class="slide-menu" id="my-models-explorer">
+        <h1>Models</h1>
+      </div>
+      <div class="slide-menu" id="my-user-explorer">
+        <h1></h1>
+      </div>
+      <div id="viewer-container">
+        <div id="map"></div>
+        <p>powered by IFC.js</p><img src="./images/ifcjs_logo.png" alt="IFC.js Logo"/>
+      </div>
+      <div class="progress-box" id="text-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
     </div>
-    <div class="slide-menu" id="my-models-explorer">
-      <h1>Models</h1>
+    
+    <div class="login-container" id="login-container">
+      <h1 class="welcome">What is your name?</h1>
+      <div id="login-form">
+        <div class="input-box">
+          <input type="text" id="username" required="">
+          <label for="">Name</label>
+        </div>
+        <label id="submit-go" class="button submit-go"><ion-icon name="play-outline"></ion-icon><span class="title">Go</span></label>
+      </div>
     </div>
-    <div id="viewer-container">
-      <p>powered by IFC.js</p><img src="./images/ifcjs_logo.png" alt="IFC.js Logo"/>
-    </div>
-    <div class="progress-box" id="text-container">
-      <div class="progress-bar" id="progress-bar"></div>
-    </div>
+    
+    
     <!---------------------Page Start---------------------->
     <canvas id="three-canvas"></canvas>
     <script src="bundle.js"></script>
+    <script src="./src/login.js"></script>
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   </body>
