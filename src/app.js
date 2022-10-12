@@ -5,17 +5,31 @@ import { IFCSPACE,
  } from "web-ifc";
 
 const container = document.getElementById('viewer-container');
-const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
+//const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
 
-class loadModel{
-  constructor() {
-    this.model = this.ifcViewer();
-    this.dimensionTool();
+class Session{
+  constructor(changed) {
+    this.viewer = this.setInstance();
+    new ifcViewer(this.viewer, changed);
+    new UIEffects(this.viewer);
   }
 
-  ifcViewer() {
+  setInstance() {
+    return new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
+  }
+}
+
+class ifcViewer{
+  constructor(viewer, changed) {
+    this.model = this.ifcViewer(viewer, changed);
+    this.dimensionTool(viewer);
+    this.propertiesMenu(viewer);
+  }
+
+  async ifcViewer(viewer, changed) {
     console.log('test times executed');
     var model;
+    var model_name;
     const modelID = 0;
     viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
       [IFCSPACE]: false,
@@ -27,14 +41,24 @@ class loadModel{
     viewer.axes.setAxes();
 
     const input = document.getElementById("file-input");
-    const models = document.querySelector(".models");
     
+    const ifcURL = URL.createObjectURL(changed.target.files[0]);
+    model_name = changed.target.files[0]['name'];
+    model = await loadIfcViewer(ifcURL,viewer);
+    modelID = model.modelID;
+
+    console.log(model_name);
+    /*
     input.addEventListener("change", async (changed) => {
       const ifcURL = URL.createObjectURL(changed.target.files[0]);
+      model_name = changed.target.files[0]['name'];
       model = await loadIfcViewer(ifcURL,viewer);
       modelID = model.modelID;
+
+      console.log(model_name);
     })
-    /*
+    
+    
     window.ondblclick = async () => { 
       const result =  await viewer.IFC.selector.pickIfcItem();
       if(!result) return;
@@ -47,10 +71,10 @@ class loadModel{
 
   }
 
-  dimensionTool() {
+  dimensionTool(viewer) {
     //--------------------
     viewer.dimensions.active = true;
-    viewer.dimensions.previewActive = true;
+    viewer.dimensions.previewActive = false;
     const dimensions = document.getElementById("dimensions");
 
     window.ondblclick = () => {
@@ -67,59 +91,56 @@ class loadModel{
         }
     }
   }
+
+  propertiesMenu(viewer) {
+    window.ondblclick = async () => {
+      const result = await viewer.IFC.selector.highlightIfcItem();
+      if (!result) return;
+      const { modelID, id } = result;
+      const props = await viewer.IFC.getProperties(modelID, id, true, false);
+      console.log(props);
+    };
+  }
+
   
 }
 
 class UIEffects{
-  constructor() {
-    this.buttonsEffects();
+  constructor(viewer) {
+    this.buttonsEffects(viewer);
   }
 
-  buttonsEffects() {
-    const dimensions = document.getElementById("dimensions");
-    
+  buttonsEffects(viewer) {
+    //----------
+    const dimensions = document.getElementById("dimensions");    
     dimensions.addEventListener("click", function() {
       if (dimensions.checked) {
         document.querySelector('.dimensions').classList.add('button-active');
+        viewer.dimensions.previewActive = true;
       } else {
         document.querySelector('.dimensions').classList.remove('button-active');
+        viewer.dimensions.previewActive = false;
       }
     })
-  }
-}
-/*
-class PlanViewMode extends loadModel{
-  constructor(viewer) {
-   super(viewer, viewer);
-  }
-
-  async plans() {
-    const lineMaterial = new LineBasicMaterial({color: 'black'});
-    const baseMaterial = new MeshBasicMaterial({
-      polygonOffset:true,
-      polygonOffserFactor: 1,
-      polygonOffsetUnits: 1
+    //---------
+    const properties = document.getElementById("properties");
+    properties.addEventListener("click", function() {
+      if (properties.checked) {
+        document.querySelector('.properties').classList.add('button-active');
+      } else {
+        document.querySelector('.properties').classList.remove('button-active');
+      }
     })
-
     
   }
 }
 
-class preprocData extends loadModel{
-  constructor(viewer) {
-    super(viewer, viewer)
-    this.getData();
-  }
-
-  getData(){
-    
-  }
-}
-*/
 //----------------------------------------/
 //           FUNCTIONS
 //----------------------------------------/
-
+function disposeModel(viewer) {
+  viewer.dispose();
+}
 
 async function loadIfcViewer(url, viewer) {
   // Load the model
@@ -151,8 +172,40 @@ function setupProgressNotification(viewer) {
   
 }
 
+function createModelBtn(name,) {
+  const myModelsExplorer = document.getElementById('my-models-explorer');
+  const id = 'Model_'+name;
+
+
+  const input = document.createElement('input');
+  input.type = "checkbox";
+  input.id = id;
+  input.hidden = true;
+  myModelsExplorer.appendChild(input);
+
+  const label = document.createElement('label');
+  label.classList.add('button');
+  label.classList.add(id);
+  label.setAttribute('for', id);
+
+  const ionIcon = document.createElement('ion-icon');
+  ionIcon.name = 'cube-outline';
+
+  const span = document.createElement('span');
+  span.classList.add('title');
+  span.innerText = id;
+
+  label.appendChild(ionIcon);
+  label.appendChild(span);
+  myModelsExplorer.appendChild(label);
+
+
+
+  
+}
 
 
 
 
-export {loadModel, UIEffects}
+
+export {Session}
