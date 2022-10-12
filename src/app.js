@@ -1,60 +1,42 @@
 import {
   Color, LineBasicMaterial, MeshBasicMaterial} from "three";
-import {IfcViewerAPI} from "web-ifc-viewer";
+import {dimension, IfcViewerAPI} from "web-ifc-viewer";
 import { IFCSPACE,
  } from "web-ifc";
 
-
+const container = document.getElementById('viewer-container');
+const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
 
 class loadModel{
   constructor() {
-    const container = document.getElementById('viewer-container');
-    this.viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
     this.model = this.ifcViewer();
+    this.dimensionTool();
   }
 
   ifcViewer() {
+    console.log('test times executed');
     var model;
     const modelID = 0;
-    this.viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
+    viewer.IFC.loader.ifcManager.parser.setupOptionalCategories({
       [IFCSPACE]: false,
     });
-    setUpMultiThreading(this.viewer);
-    setupProgressNotification(this.viewer);
+    setUpMultiThreading(viewer);
+    setupProgressNotification(viewer);
 
     // Create axes
-    this.viewer.axes.setAxes();
+    viewer.axes.setAxes();
 
     const input = document.getElementById("file-input");
     const models = document.querySelector(".models");
     
     input.addEventListener("change", async (changed) => {
       const ifcURL = URL.createObjectURL(changed.target.files[0]);
-      model = await loadIfcViewer(ifcURL,this.viewer);
+      model = await loadIfcViewer(ifcURL,viewer);
       modelID = model.modelID;
-      //console.log('Preprocesing BIm data');
-      /*
-      const result = await this.viewer.IFC.properties.serializeAllProperties(model);
-      //----------
-      // Download the properties as JSON file
-      const file = new File(result, 'properties');
-      const link = document.createElement('a');
-      document.body.appendChild(link);
-      link.href = URL.createObjectURL(file);
-      link.download = 'properties.json';
-      link.click();
-      link.remove();
-      console.log('Preprocesing BIm data: DONE!');*/
     })
-
-    models.addEventListener("click", function() {
-    
-    })
-    
-
     /*
     window.ondblclick = async () => { 
-      const result =  await this.viewer.IFC.selector.pickIfcItem();
+      const result =  await viewer.IFC.selector.pickIfcItem();
       if(!result) return;
       const {modelID, id} = result;
       const props = await viewer.IFC.getProperties(modelID, id, true, true);
@@ -64,9 +46,48 @@ class loadModel{
     return model;
 
   }
+
+  dimensionTool() {
+    //--------------------
+    viewer.dimensions.active = true;
+    viewer.dimensions.previewActive = true;
+    const dimensions = document.getElementById("dimensions");
+
+    window.ondblclick = () => {
+      if (dimensions.checked) {
+        viewer.dimensions.create();
+      }
+    }
+
+    window.onkeydown = (event) => {
+        if (dimensions.checked) {
+          if(event.code === 'Delete') {
+            viewer.dimensions.delete();
+          }
+        }
+    }
+  }
   
 }
 
+class UIEffects{
+  constructor() {
+    this.buttonsEffects();
+  }
+
+  buttonsEffects() {
+    const dimensions = document.getElementById("dimensions");
+    
+    dimensions.addEventListener("click", function() {
+      if (dimensions.checked) {
+        document.querySelector('.dimensions').classList.add('button-active');
+      } else {
+        document.querySelector('.dimensions').classList.remove('button-active');
+      }
+    })
+  }
+}
+/*
 class PlanViewMode extends loadModel{
   constructor(viewer) {
    super(viewer, viewer);
@@ -84,44 +105,6 @@ class PlanViewMode extends loadModel{
   }
 }
 
-class buttonsActions extends loadModel{
-  constructor(viewer) {
-    super(viewer,viewer);
-    this.buttons(this.viewer);
-  }
-
-  buttons(viewer) {
-    const dimensions = document.getElementById("dimensions");
-    dimensions.addEventListener("click", function() {
-      if (dimensions.checked) {
-        document.querySelector('.dimensions').classList.add('button-active');
-        viewer.dimensions.active = true;
-        viewer.dimensions.previewActive = true;
-      } else {
-        document.querySelector('.dimensions').classList.remove('button-active');
-        viewer.dimensions.active = false;
-        viewer.dimensions.previewActive = false;
-      }
-    })
-
-    window.ondblclick = () => {
-
-      if (viewer.dimensions.active) {
-        viewer.dimensions.create();
-      }
-    }
-
-    window.onkeydown = (event) => {
-      if (viewer.dimensions.active) {
-        if (event.code === 'Delete') {
-          viewer.dimensions.delete();
-        }
-      }
-    }
-  }
-
-}
-
 class preprocData extends loadModel{
   constructor(viewer) {
     super(viewer, viewer)
@@ -132,7 +115,7 @@ class preprocData extends loadModel{
     
   }
 }
-
+*/
 //----------------------------------------/
 //           FUNCTIONS
 //----------------------------------------/
@@ -168,13 +151,8 @@ function setupProgressNotification(viewer) {
   
 }
 
-async function serializeProperties(viewer, model) {
-  const result = await viewer.IFC.properties.serializeAllProperties(model);
-  return result;
-}
 
 
 
 
-
-export {loadModel, PlanViewMode, buttonsActions, preprocData}
+export {loadModel, UIEffects}

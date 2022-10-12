@@ -256,7 +256,7 @@
     border-radius: 15px;
   }
 
-  .ifcjs-dimension-preview {
+.ifcjs-dimension-preview {
     width: 1rem;
     height: 1rem;
     background-color: #FFA50F;
