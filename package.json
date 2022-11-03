@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "client-zip": "^2.2.2",
+    "dexie": "^3.2.2",
     "three": "^0.135.0",
     "three-mesh-bvh": "^0.5.15",
     "web-ifc": "^0.0.36",

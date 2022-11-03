@@ -145,6 +145,14 @@
     background: linear-gradient(#7164e6, #f0f0f3);
   }
 
+  .dispose {
+    transform: scale(0.7);
+  }
+
+  .disabled {
+    visibility: hidden;
+  }
+
   
   /*-------PROPERTY MENU*/
   .ifc-property-menu {
@@ -203,13 +211,14 @@
 
   /*-----------MY EXPLORER*/
   .slide-menu {
-    background: transparent;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 15px;
     position: fixed;
     top: 100px;
     bottom: 100px;
-    left: -380px;
+    left: -400px;
     z-index: 100000000;
-    width: auto;
+    width: 400px;
     overflow-y:auto;
     transition: all 300ms ease-in-out;
     margin-top: 0;
@@ -217,10 +226,49 @@
   }
 
   .slide-menu h1 {
-    padding: 15px;
+    padding: 20px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
     text-transform: uppercase;
+    color: black;
+  }
+
+  .slide-menu h2 {
+    font-size: 1rem;
+  }
+
+  .pset-container {
+    position: relative;
+    padding: 5px;
+    width: 100%;
+    list-style: none;
+    transition: 0.5s;
+    z-index: 99999999;
+  }
+
+  .property-container {
+    display: inline-flex;
+    border-radius: 60px;
+    width: 100%;
+    padding: 5px;
+    background: rgba(255, 255, 255, 0.7);
+  }
+
+  .property-name {
+    padding-left: 15px;
+    width: 100%;
+    left: 0;
+  }
+
+  .property-value {
+    width: 100%;
+    right: 0;
     color: #777;
   }
+
+
+  
 
   #properties:checked ~ #my-explorer {
     left: 0;
