@@ -32,10 +32,13 @@ class Session{
   setInstance() {
     return new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
   }
+
 }
+
 
 class ifcViewer{
   constructor(viewer, changed) {
+    //this.disposeViewer(viewer, container);
     this.model = this.ifcViewer(viewer, changed);
     this.dimensionTool(viewer);
     this.propertiesMenu(viewer);
@@ -57,7 +60,7 @@ class ifcViewer{
   }
 
   async ifcViewer(viewer, changed) {
-    console.log('test times executed');
+    
     var model;
     var model_name;
     const modelID = 0;
@@ -122,8 +125,10 @@ class ifcViewer{
     }
   }
 
-  dipose(viewer) {
-
+  disposeViewer(viewer, container) {
+    viewer.dispose();
+    viewer = null;
+    viewer = new IfcViewerAPI({container});
   }
 
   propertiesMenu(viewer) {
@@ -432,7 +437,7 @@ async function loadIfcViewer(url, viewer) {
 
 async function setUpMultiThreading(viewer) {
   const manager = viewer.IFC.loader.ifcManager;
-  await manager.useWebWorkers(true, '../IFCWorker.js');
+  await manager.useWebWorkers(true, './IFCWorker.js');
 }
 
 function setupProgressNotification(viewer) {
