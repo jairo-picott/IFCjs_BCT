@@ -231,7 +231,7 @@
     align-items: center;
     justify-content: center;
     text-transform: uppercase;
-    color: black;
+    color: rgb(0, 0, 0);
   }
 
   .slide-menu h2 {
@@ -324,6 +324,81 @@
 .user {
   position: absolute;
   right: 0;
+}
+
+/*------WEATHER CONTAINER*/
+
+#weather-container {
+  position: absolute;
+  bottom: 50px;
+  left: 10px;
+  background: #fff;
+  height: 70px;
+  width: 160px;
+  box-sizing: border-box;
+  transition: 0.5s;
+  transform-origin: right;
+  border-radius: 60px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  color: #777;
+  text-transform: uppercase;
+  z-index: 200000;
+  transition: 0.5s;
+  padding: 10px;
+}
+
+#weather-container:hover {
+  cursor: pointer;
+  height: auto;
+  width: auto;
+  transition-delay: 0.25s;
+}
+
+#weather-icon-img {
+  position: absolute;
+  text-align: center;
+  opacity: 0.5;
+  size: 64px;
+}
+
+#weather-container:hover #weather-icon-img {
+  width: 100px;
+  opacity: 0.2;
+}
+
+.weather-temperature-value p {
+  position: absolute;
+  width: 100%;
+  font-size: 2rem;
+  text-align: center;
+  padding-top: 10px;
+  color: black;
+}
+
+#weather-container:hover .weather-temperature-value p {
+  position: relative;
+  font-size: 1.8rem;
+}
+
+.weather-date-time p {
+  font-size: 0.7rem;
+  font-style: italic;
+}
+
+.more-data {
+  position: relative;
+  transform: scale(0);
+  transition: 0.5s;
+  transition-delay: 0s;
+  text-align: center;
+}
+
+#weather-container:hover .more-data {
+  transform: scale(1);
+  transition-delay: 0.25s;
 }
 
 

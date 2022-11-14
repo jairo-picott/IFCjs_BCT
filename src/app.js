@@ -1,22 +1,13 @@
 import {
-  Color, LineBasicMaterial, MeshBasicMaterial} from "three";
-import {dimension, IfcViewerAPI} from "web-ifc-viewer";
+  Color} from "three";
+import {IfcViewerAPI} from "web-ifc-viewer";
 import { 
-  IFCBUILDINGELEMENTPROXY, 
-  IFCCURTAINWALL, 
-  IFCDOOR, 
-  IFCFLOWFITTING, 
-  IFCFLOWSEGMENT,
-  IFCFLOWTERMINAL,
-  IFCMEMBER, 
-  IFCPLATE, 
-  IFCSPACE, 
-  IFCWALL, 
-  IFCWALLSTANDARDCASE, 
-  IFCWINDOW, 
-  IFCSLAB
- } from "web-ifc";
-import Dexie from "dexie";
+  IFCSPACE } from "web-ifc";
+import { IfcAPI } from "web-ifc/web-ifc-api";
+
+var models = [];
+var index;
+
 
 const container = document.getElementById('viewer-container');
 //const viewer = new IfcViewerAPI({ container, backgroundColor: new Color(0xffffff) });
@@ -35,29 +26,62 @@ class Session{
 
 }
 
-
 class ifcViewer{
   constructor(viewer, changed) {
     //this.disposeViewer(viewer, container);
     this.model = this.ifcViewer(viewer, changed);
-    this.dimensionTool(viewer);
-    this.propertiesMenu(viewer);
-    this.clipPlaneTool(viewer);
+    this.EventHandler(viewer);
   }
 
-  clipPlaneTool(viewer) {
-    const plane = document.getElementById('plane');
-    plane.addEventListener('click', function() {
-      if(plane.checked) {
+  EventHandler(viewer) {
+    viewer.clipper.active = true;
+    const plane = document.getElementById('plane'); 
+
+    //--------------------
+    viewer.dimensions.active = true;
+    viewer.dimensions.previewActive = false;
+    const dimensions = document.getElementById("dimensions");
+
+    //-------------------------
+    const properties = document.getElementById('properties');
+    //const name = document.querySelector('element-name');
+    //console.log(name.innerText);
+
+    window.oncontextmenu = async () => {
+      if (properties.checked) {
+        const result = await viewer.IFC.selector.pickIfcItem(false);
+        if (!result) return;
+        const { modelID, id } = result;
+        const props = await viewer.IFC.getProperties(modelID, id, true, true);
+        //name.innerText = props['Name']['value'];
+        console.log(props);
+        console.log('This is the pset Name:' + props['psets']['0']['Name']['value']);
+        loadProperties(props);
+        viewer.IFC.selector.unpickIfcItems();
+      }
+      
+    };
+
+    window.ondblclick = () => {
+      if (dimensions.checked) {
+        viewer.dimensions.create();
+      } else if (plane.checked) {
         viewer.clipper.createPlane();
       } else {
+        
+      }
+    }
+
+    window.onkeydown = (event) => {
+        
+      if(event.code === 'Delete') {
+        viewer.dimensions.delete();
         viewer.clipper.deletePlane();
       }
-    })
-
-    
-
+        
+    }
   }
+
 
   async ifcViewer(viewer, changed) {
     
@@ -80,75 +104,11 @@ class ifcViewer{
     model = await loadIfcViewer(ifcURL,viewer);
     modelID = model.modelID;
 
+    models.push(model);
+
     console.log(model_name);
-    /*
-    input.addEventListener("change", async (changed) => {
-      const ifcURL = URL.createObjectURL(changed.target.files[0]);
-      model_name = changed.target.files[0]['name'];
-      model = await loadIfcViewer(ifcURL,viewer);
-      modelID = model.modelID;
-
-      console.log(model_name);
-    })
-    
-    
-    window.ondblclick = async () => { 
-      const result =  await viewer.IFC.selector.pickIfcItem();
-      if(!result) return;
-      const {modelID, id} = result;
-      const props = await viewer.IFC.getProperties(modelID, id, true, true);
-      console.log(props);
-    }*/
-
     return model;
 
-  }
-
-  dimensionTool(viewer) {
-    //--------------------
-    viewer.dimensions.active = true;
-    viewer.dimensions.previewActive = false;
-    const dimensions = document.getElementById("dimensions");
-
-    window.ondblclick = () => {
-      if (dimensions.checked) {
-        viewer.dimensions.create();
-      }
-    }
-
-    window.onkeydown = (event) => {
-        if (dimensions.checked) {
-          if(event.code === 'Delete') {
-            viewer.dimensions.delete();
-          }
-        }
-    }
-  }
-
-  disposeViewer(viewer, container) {
-    viewer.dispose();
-    viewer = null;
-    viewer = new IfcViewerAPI({container});
-  }
-
-  propertiesMenu(viewer) {
-    const properties = document.getElementById('properties');
-    //const name = document.querySelector('element-name');
-    //console.log(name.innerText);
-
-    window.oncontextmenu = async () => {
-      if (properties.checked) {
-        const result = await viewer.IFC.selector.pickIfcItem(false);
-        if (!result) return;
-        const { modelID, id } = result;
-        const props = await viewer.IFC.getProperties(modelID, id, true, true);
-        //name.innerText = props['Name']['value'];
-        console.log(getTopFormat(props));
-        loadProperties(props);
-        viewer.IFC.selector.unpickIfcItems();
-      }
-      
-    };
   }
 
   
@@ -191,130 +151,206 @@ class UIEffects{
     })
     
   }
+
+  
 }
 
-class DataBase{
-  constructor(viewer, input, event) {
-    this.saveButton = document.getElementById('model-save');
-    this.saveLabel = document.querySelector('.model-save');
-    this.loadButton = document.getElementById('model-load');
-    this.loadLabel = document.querySelector('.model-load');
-    this.removeButton = document.getElementById('model-remove');
-    this.removeLabel = document.querySelector('.model-remove');
-
-    this.preprocessAndSaveIfc(event, viewer);
-    this.db = this.createOrOpenDatabase();
-    this.updateButtons();
-    this.setUP(viewer, input);
+class WeatherManager{
+  constructor(city) {
+    this.GetWeather(city);
   }
 
-  setUP(viewer, input) {
-    this.removeButton.onclick = () => this.removeDatabase();
-    this.loadButton.onclick = () => this.loadSavedIfc(viewer);
-    this.saveButton.onclick = () => input.click();
-  }
+  async GetWeather(city) {
+    const weather = await getWeatherData("GET", city);
+    const responseCode = weather.cod;
+    const dateTime = document.getElementById('weather-date-time p');
 
-  removeDatabase() {
-    localStorage.removeItem("modelsNames");
-    this.db.delete();
-    location.reload();
-  }
-
-  async loadSavedIfc(viewer) {
-    const serializedNames = localStorage.getItem("modelsNames");
-    const names = JSON.parse(serializedNames);
-
-    for (const name of names) {
-      const savedModel = await this.db.bimModels.where("name").equals(name).toArray();
-
-      const data = savedModel[0].file;
-      const file = new File([data], 'example');
-      const url = URL.createObjectURL(file);
-      await viewer.GLTF.loadModel(url);
-    }
-  }
-
-  async preprocessAndSaveIfc(event, viewer) {
-    const file = event.target.files[0];
-    const url = URL.createObjectURL(file);
-
-    console.log('Saving model data')
-
-    const result = await viewer.GLTF.exportIfcFileAsGltf({
-      ifcFileUrl: url,
-      categories: {
-        walls: [IFCWALL, IFCWALLSTANDARDCASE],
-        slabs: [IFCSLAB],
-        windows: [IFCWINDOW],
-        curtainwalls: [IFCMEMBER, IFCPLATE, IFCCURTAINWALL],
-        doors: [IFCDOOR],
-        pipes: [IFCFLOWFITTING, IFCFLOWSEGMENT, IFCFLOWTERMINAL],
-        undefined: [IFCBUILDINGELEMENTPROXY]
-      }
-    });
-
-    const models = [];
-
-    for (const categoryName in result.GLTF) {
-      const category = result.GLTF[categoryName];
-      for (const levelName in category) {
-        const file = category[levelName].file;
-        if (file) {
-          const data = await file.arrayBuffer();
-          models.push({
-            name: result.id + categoryName + levelName,
-            id: result.id,
-            category: categoryName,
-            level: levelName,
-            file: data
-          })
-        }
-      }
-    }
-
-    await this.db.bimModels.bulkPut(models);
-
-    const serializedNames = JSON.stringify(models.map(model => model.name));
-    localStorage.setItem("modelsNames", serializedNames);
-    //location.reload();
-    console.log('model-' + serializedNames + '-Saved.')
-  }
-
-  createOrOpenDatabase() {
-    const db = new Dexie("ModelDatabase");
-
-    db.version(1).stores({
-      bimModels:`
-      name,
-      id,
-      category,
-      level`
-    });
-
-    return db;
-  }
-
-  updateButtons() {
-    const previousData = localStorage.getItem('modelsNames');
-
-    if(!previousData) {
-      this.loadLabel.classList.add('disabled');
-      this.removeLabel.classList.add('disabled');
-      this.saveLabel.classList.remove('disabled');
+    if (responseCode === 200) {
+      displayWeather(weather);
+      var intervalId = window.setInterval(function(){
+        displayWeather(weather);
+      }, 60000);
+      
     } else {
-      this.loadLabel.classList.remove('disabled');
-      this.removeLabel.classList.remove('disabled');
-      this.saveLabel.classList.add('disabled');
+      console.log('The weather could not be loaded, error code ' + weather.cod);
     }
   }
-  
-
-  
 }
+
+
+
 
 //----------------------------------------/
 //           FUNCTIONS
 //----------------------------------------/
+function displayWeather (weather) {
+  const iconElement = document.getElementById('weather-icon-img');
+  const tempElement = document.querySelector('.weather-temperature-value p');
+  const descElement = document.querySelector('.weather-temperature-description p');
+  const locationElement = document.querySelector('.weather-location p');
+  const feelsLikeDescription = document.querySelector('.weather-feels-like p');
+  const windPressure = document.querySelector('.weather-wind-pressure p');
+  const humidityVisibility = document.querySelector('.weather-humidity-visibility p');
+  const dateTime = document.querySelector('.date-time p');
+  var currentDate = new Date();
+
+  iconElement.setAttribute('src', "http://openweathermap.org/img/w/" + weather.weather.icon + ".png");
+  tempElement.innerText = weather.main.temp + '°C';
+  descElement.innerText = weather.weather.description;
+  locationElement.innerText = weather.city + ', ' + weather.sys.country;
+  feelsLikeDescription.innerText = 'Feels like: ' + weather.main.feels_like + '°C'; 
+  windPressure.innerText = 'Wind: ' + weather.wind.speed + 'm/s ' + windDirectionToString(weather.wind.deg) + ', Pressure:' + weather.main.pressure + 'mPa';
+  humidityVisibility.innerText = 'Humidity: ' + weather.main.humidity + '%, Visibility: ' + weather.visibility/1000 + 'Km';
+
+}
+
+function windDirectionToString(deg) {
+    
+  var degStr;
+  if (deg >= 0 && deg < 22.5 ) {
+      degStr = 'N';
+  } else if (deg >= 22.5 && deg < 67.5) {
+      degStr = 'NE';
+  } else if (deg >= 67.5 && deg < 112.5) {
+      degStr = 'E';
+  } else if (deg >= 112.5 && deg < 157.5) {
+      degStr = 'SE';
+  } else if (deg >= 157.5 && deg < 202.5) {
+      degStr = 'S';
+  } else if (deg >= 202.5 && deg < 247.5) {
+      degStr = 'SW';
+  } else if (deg >= 247.5 && deg < 292.5) {
+      degStr = 'W';
+  } else if (deg >= 292.5 && deg < 337.5) {
+      degStr = 'NW';
+  } else if (deg >= 337.5 && deg <= 360) {
+      degStr = 'N';
+  }
+
+  return degStr;
+}
+
+async function getWeatherData(method, city) {
+  let url = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=c81ac3256fda648135a8832648f65b8e&units=metric";
+  var requestOptions = {
+    method: method,
+    redirect: 'follow'
+  };
+
+  var obj;
+  var requestResult;
+
+  const request = await fetch(url, requestOptions)
+  .then(response => response.json())
+  .then(data => obj = data)
+  .then(result => requestResult = result)
+  .catch(error => console.log('error', error));
+
+  // Load data from the request into weather Object
+  const weather = {
+    cod: requestResult['cod'],
+    weather: {
+        main: requestResult['weather']['0']['main'],
+        description: requestResult['weather']['0']['description'],
+        icon: requestResult['weather']['0']['icon']
+    },
+    main: {
+        temp: requestResult['main']['temp'],
+        feels_like: requestResult['main']['feels_like'],
+        temp_min: requestResult['main']['temp_min'],
+        temp_max: requestResult['main']['temp_max'],
+        pressure: requestResult['main']['pressure'],
+        humidity: requestResult['main']['humidity']
+    },
+    visibility: requestResult['visibility'],
+    wind: {
+        speed: requestResult['wind']['speed'],
+        deg: requestResult['wind']['deg']
+    },
+    clouds: {
+        all: requestResult['clouds']['all']
+    },
+    sys: {
+        country: requestResult['sys']['country']
+    },
+    timezone: requestResult['timezone'],
+    city: requestResult['name']
+  }
+  //console.log(weather);
+  return weather;
+
+}
+
+/*
+function createModelButton(model, model_name, viewer) {
+    //-----------Model
+    const id = 'model-' + model.modelID;
+    const models_explorer = document.getElementById('my-models-explorer');
+
+    const input = document.createElement('input');
+    const label = document.createElement('label');
+
+    input.type = 'chekbox';
+    input.id = id;
+    input.hidden = true;
+
+    label.setAttribute('for', id);
+    label.classList.add('button');
+    label.classList.add(id);
+
+    const icon = document.createElement('ion-icon');
+    icon.name = 'business-outline';
+    label.appendChild(icon);
+
+    const span = document.createElement('span');
+    span.classList.add('title');
+    span.innerText = model_name;
+    label.appendChild(span);
+
+    models_explorer.appendChild(input);
+    models_explorer.appendChild(label);
+
+    //---------------Trash
+    const id_t = 'trash-' + model.modelID;
+
+    const input_t = document.createElement('input');
+    const label_t = document.createElement('label');
+
+    input_t.type = 'chekbox';
+    input_t.id = id_t;
+    input_t.hidden = true;
+
+    label_t.setAttribute('for', id_t);
+    label_t.classList.add('button');
+    label_t.classList.add(id_t);
+
+    const t_icon = document.createElement('ion-icon');
+    t_icon.name = 'trash-outline';
+    label_t.appendChild(t_icon);
+
+    const t_span = document.createElement('span');
+    t_span.classList.add('title');
+    t_span.innerText = 'Remove';
+    label_t.appendChild(t_span);
+
+    models_explorer.appendChild(input_t);
+    models_explorer.appendChild(label_t);
+
+    //----------- Events
+    input_t.addEventListener('click', function() {
+      disposeModel(viewer, id);
+      //console.log('dispose')
+    })
+
+    input.addEventListener('click', function() {
+      if (input.checked) {
+        
+      }
+    })
+    
+
+  }*/
+
 function getPropertyValue(props, name) {
   const pset_lenght = props['psets']['length'];
   const psets = [];
@@ -330,8 +366,6 @@ function getPropertyValue(props, name) {
       const property = element['HasProperties'][i];
 
       const property_name = property['Name']['value'];
-      console.log(property_name);
-      console.log(property_name + ' - ' +  name);
       if (property_name === name) {
         return property['NominalValue']['value'];
       }
@@ -367,6 +401,7 @@ function loadProperties(props) {
     psets.push(pset);
   }
   psets.forEach(element => {
+    
     const pset_container = document.createElement('div');
     pset_container.classList.add('pset-container');
 
@@ -395,7 +430,7 @@ function loadProperties(props) {
       property_name.classList.add('property-name');
       const property_name_li = document.createElement('li');
       const property_name_span = document.createElement('span')
-      property_name_span.innerText = property['Name']['value'] + ': ';
+      property_name_span.innerText =property['Name']['value'] + ': ';
       property_name_li.appendChild(property_name_span);
       property_name.appendChild(property_name_li);
       property_container.appendChild(property_name);
@@ -420,8 +455,27 @@ function loadProperties(props) {
 
 }
 
-function disposeModel(viewer) {
+function DecodeIFCString (ifcString) {
+  const ifcUnicodeRegEx = /\\X2\\(.*?)\\X0\\/;
+  let resutlString = ifcString;
+  let match = ifcUnicodeRegEx.exec(ifcString);
+  while(match) {
+    const unicodeChart = String.fromCharCode (parseInt (match[1], 16));
+    resutlString = resutlString.replace (match[0], unicodeChart);
+    match = ifcUnicodeRegEx.exec(ifcString);
+  }
+  return resutlString;
+}
+
+function disposeModel(viewer, id) {
   viewer.dispose();
+  viewer = null;
+  try{
+    const input = document.getElementById('file-input');
+    input.value = '';
+  } catch (e) {console.log(e)}
+
+  
 }
 
 async function loadIfcViewer(url, viewer) {
@@ -454,40 +508,9 @@ function setupProgressNotification(viewer) {
   
 }
 
-function createModelBtn(name) {
-  const myModelsExplorer = document.getElementById('my-models-explorer');
-  const id = 'Model_'+name;
-
-
-  const input = document.createElement('input');
-  input.type = "checkbox";
-  input.id = id;
-  input.hidden = true;
-  myModelsExplorer.appendChild(input);
-
-  const label = document.createElement('label');
-  label.classList.add('button');
-  label.classList.add(id);
-  label.setAttribute('for', id);
-
-  const ionIcon = document.createElement('ion-icon');
-  ionIcon.name = 'cube-outline';
-
-  const span = document.createElement('span');
-  span.classList.add('title');
-  span.innerText = id;
-
-  label.appendChild(ionIcon);
-  label.appendChild(span);
-  myModelsExplorer.appendChild(label);
-
-
-
-  
-}
 
 
 
 
 
-export {Session, DataBase}
+export {Session, WeatherManager}

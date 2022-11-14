@@ -22,48 +22,46 @@
       <label for="properties" class="button properties"><ion-icon name="reader-outline"></ion-icon><span class="title">Properties</span></label>
       <input type="checkbox" class="" id="dimensions"/>
       <label for="dimensions" class="button dimensions"><ion-icon name="barcode-outline"></ion-icon><span class="title">Dimensions</span></label>
-      <input type="checkbox" class="" id="models"/>
-      <label for="models" class="button models"><ion-icon name="cube-outline"></ion-icon><span class="title">Models</span></label>
       <input type="checkbox" class="" id="user"/ hidden>
-      <label for="user" class="button user"><ion-icon name="person-outline"></ion-icon><span class="title" id="username-title">Username</span></label>
+      <label href="#" for="user" class="button user"><ion-icon name="person-outline"></ion-icon><span class="title" id="username-title">Username</span></label>
       <input type="checkbox" class="" id="plane"/ hidden>
       <label for="plane" class="button plane"><ion-icon name="cut-outline"></ion-icon><span class="title">Clip PLane</span></label>
-      
       <div class="slide-menu" id="my-explorer">
         <br>
         <h1>Properties</h1>
         <div class="pset-container">
           <div class="pset-title">
-            <li><span>Pset_Common</span></li>
+            <li><span></span></li>
           </div> <br>
           <div class="property-container">
             <div class="property-name">
-              <li><span>Area: </span></li>
+              <li><span></span></li>
             </div>
             <div class="property-value">
-              <li><span>207</span></li>
+              <li><span></span></li>
             </div>
           </div>
         </div>
 
       </div>
-      <div class="slide-menu" id="my-models-explorer">
-        <h1>Models</h1>
-        <input type="checkbox" class="" id="model-save" hidden/>
-        <label for="model-save" class="button model-save"><ion-icon name="save-outline"></ion-icon><span class="title">Save</span></label>
-        <input type="checkbox" class="" id="model-load" hidden/>
-        <label for="model-load" class="button model-load"><ion-icon name="cloud-upload-outline"></ion-icon><span class="title">Load</span></label>
-        <input type="checkbox" class="" id="model-remove" hidden/>
-        <label for="model-remove" class="button model-remove"><ion-icon name="trash-outline"></ion-icon><span class="title">Remove</span></label>
-        
-        
-      </div>
       <div class="slide-menu" id="my-user-explorer">
         <h1></h1>
       </div>
       <div id="viewer-container">
-        <div id="map"></div>
+        <div id="widget"></div>
         <p>powered by IFC.js</p><img src="./images/ifcjs_logo.png" alt="IFC.js Logo"/>
+      </div>
+      <div id="weather-container">
+        <div class="weather-temperature-value">
+          <img id="weather-icon-img" src="" alt="Logo Weather">
+          <p></p>
+        </div>
+        <div id="" class="more-data weather-location"><p></p></div>
+        <div id="" class="more-data weather-temperature-description"><p></p></div>
+        <div id="" class="more-data weather-feels-like"><p></p></div>
+        <div id="" class="more-data weather-wind-pressure"><p></p></div>
+        <div id="" class="more-data weather-humidity-visibility"><p></p></div>
+        <div id="" class="more-data weather-date-time"><p></p></div>
       </div>
       <div class="progress-box" id="text-container">
         <div class="progress-bar" id="progress-bar"></div>
